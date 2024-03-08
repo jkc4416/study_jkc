@@ -6,4 +6,4 @@ RUN apt-get -y update && apt-get install
 # RUN apt-get -y --no-install-recommends install wget git ssh
 
 # imagemagick 설치
-RUN apt install -y imagemagick wget git ssh
+RUN apt install -y imagemagick
