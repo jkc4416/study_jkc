@@ -1,0 +1,3 @@
+﻿  3-5.c
+C:\studyC\HonGongC_3-5\3-5.c(4,8): warning C4305: '초기화 중': 'double'에서 'float'(으)로 잘립니다.
+  HonGongC_3-5.vcxproj -> C:\studyC\HonGongC_3-5\x64\Debug\HonGongC_3-5.exe
