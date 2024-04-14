@@ -10,12 +10,12 @@ Box::Box(int w, int h) {
 }
 
 void Box::setFill(char f) {
-    fill = f;  // public 접근 제어자를 가지는 생성자를 사용해서 private 멤버 변수인 fill 설정
+    fill = f;  // public 접근 제어자를 가지는 Box 클래스의 멤버 함수 setFill()을 사용해서 private 멤버 변수인 fill 설정
 }
 
 void Box::setSize(int w, int h) {
-    width = w;
-    height = h;
+    width = w;  // public 접근 제어자를 가지는 Box 클래스의 멤버 함수 setSize()을 사용해서 private 멤버 변수인 width 설정 
+    height = h;  // public 접근 제어자를 가지는 생성자를 사용해서 private 멤버 변수인 height 설정
 }
 
 void Box::draw() {
