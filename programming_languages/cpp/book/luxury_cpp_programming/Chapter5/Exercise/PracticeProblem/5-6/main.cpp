@@ -21,10 +21,10 @@ char& find(char a[], char c, bool& success) {
 }
 
 int main() {
-    char s[] = "Mike";
-    bool b = false;
-    char& loc = find(s, 'M', b);
-    if (b == false) {
+    char s[] = "Mike";  // 검색 대상 문자열
+    bool b = false;  // 문자 찾기 성공 여부를 저장할 변수 선언
+    char& loc = find(s, 'M', b);  // 'M' 문자 찾기 시도
+    if (b == false) {  // 'M'을 찾지 못한 경우
         cout << "M을 발견할 수 없다" << endl;
         return 0;
     }
