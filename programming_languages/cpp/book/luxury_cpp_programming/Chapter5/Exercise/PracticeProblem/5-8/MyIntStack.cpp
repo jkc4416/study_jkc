@@ -1,27 +1,64 @@
-
 #include "MyIntStack.h"
-using namespace std;
+#include <cstring> // memcpy를 사용하기 위해 포함
 
-// MyIntStack 클래스 구현부
+// 기본 생성자: 멤버 변수를 초기화합니다.
+/*
+- p(nullptr)
+    : p는 int 타입의 포인터로, 동적으로 할당된 배열을 가리키는 역할을 합니다. 
+    : nullptr은 포인터를 초기화할 때 사용되는 리터럴로, 포인터가 아직 어떠한 주소도 가리키지 않음을 나타냅니다. 
+    : 즉, 스택이 생성되었지만 아직 정수를 저장할 메모리가 할당되지 않았음을 의미합니다.
+- size(0)
+    : size는 스택의 최대 크기를 저장하는 정수형 변수입니다. 
+    : 0으로 초기화하는 것은 스택의 크기가 정해지지 않았거나 비어 있음을 나타냅니다. 
+    : 이 값은 특정 크기를 갖는 스택을 생성할 때, 다른 생성자에서 적절한 값으로 설정됩니다.
+- tos(-1)
+    : tos는 "top of stack"을 의미하며, 스택에서 가장 상위에 있는 요소의 인덱스를 나타냅니다. 
+    : -1은 스택이 비어 있음을 나타내는 표준적인 값으로 사용됩니다. 
+    : 배열의 인덱스는 0부터 시작하므로, -1은 스택에 아직 아무런 요소가 추가되지 않았음을 의미합니다.
+*/
+MyIntStack::MyIntStack() : p(nullptr), size(0), tos(-1) {}  // 이니셜라이저 리스트를 활용하여 객체의 멤버 변수들의 초기화 수행
 
-// 기본 생성자 구현
-MyIntStack::MyIntStack() {
+// 매개변수를 받는 생성자: 지정된 크기의 배열을 동적 할당합니다.
+MyIntStack::MyIntStack(int size) : size(size), tos(-1) {
+    p = new int[size];  // size 크기만큼 정수 배열 할당
 }
-// int 타입 매개변수 하나를 인자로 받는 생성자 구현
-MyIntStack::MyIntStack(int size) {
-    
-}
-// 복사 생성자 구현
-MyIntStack::MyIntStack(const MyIntStack& s) {
 
+// 복사 생성자: 다른 스택 객체로부터 깊은 복사를 수행합니다.
+/*
+- 복사 생성자는 다른 동일 타입의 객체를 받아서 현재 객체를 초기화하는 특별한 생성자입니다. 이 생성자는 일반적으로 객체 간의 깊은 복사(deep copy)를 수행하기 위해 사용됩니다. 여기서의 구현은 깊은 복사를 보장하며, 다음과 같은 작업을 수행합니다:
+    1. 멤버 이니셜라이저 리스트: size(s.size), tos(s.tos)
+        : 이 부분은 생성자가 호출될 때 size와 tos 멤버 변수를 원본 객체 s의 size와 tos 값으로 초기화합니다.
+        : size는 원본 스택의 최대 크기를 복사하고, tos는 원본 스택의 현재 탑 인덱스를 복사합니다. 이렇게 함으로써 복사된 객체가 원본 객체와 같은 상태를 갖게 됩니다.
+    2. 동적 메모리 할당: p = new int[size];
+        : new 연산자를 사용하여 원본 스택과 동일한 크기의 정수 배열을 동적으로 할당합니다. 
+        : 이 메모리는 복사된 데이터를 저장할 공간으로 사용됩니다.
+    3. 데이터 복사: memcpy(p, s.p, size * sizeof(int));
+        : memcpy 함수는 원본 스택의 데이터 배열 s.p에서 새로 할당된 배열 p로 데이터를 복사합니다. size * sizeof(int)는 복사할 바이트 수를 계산하여 전체 배열을 복사합니다.
+        : 이 단계에서 실제 스택의 요소들이 새로운 스택으로 깊은 복사가 이루어집니다. 
+        : 깊은 복사는 원본 객체의 데이터를 새 객체의 자체적인 메모리 공간에 복제함으로써, 원본 객체와 복사된 객체가 서로 독립적으로 동작할 수 있게 해줍니다.
+*/
+MyIntStack::MyIntStack(const MyIntStack& s) : size(s.size), tos(s.tos) {
+    p = new int[size];  // 메모리 할당
+    memcpy(p, s.p, size * sizeof(int));  // 데이터 복사 (깊)
 }
-// 소멸자 구현
-MyIntStack::~MyIntStack() {} 
-// MyIntStack 클래스의 push 멤버 함수 구현
+
+// 소멸자: 동적으로 할당된 메모리를 해제합니다.
+MyIntStack::~MyIntStack() {
+    delete[] p;  // 할당된 메모리 해제
+}
+
+// push 함수: 스택에 요소를 추가합니다.
 bool MyIntStack::push(int n) {
-
+    if (tos >= size - 1)  // 스택이 가득 찼는지 검사
+        return false;  // 가득 차면 false 반환
+    p[++tos] = n;  // 스택에 요소를 추가하고 tos 증가
+    return true;  // 요소 추가 성공
 }
-// MyIntStack 클래스의 pip 멤버 함수 구현
+
+// pop 함수: 스택의 탑에 있는 요소를 제거합니다.
 bool MyIntStack::pop(int &n) {
-    
+    if (tos == -1)  // 스택이 비었는지 검사
+        return false;  // 비었으면 false 반환
+    n = p[tos--];  // 현재 탑의 요소를 n에 할당하고 tos 감소
+    return true;  // 요소 제거 성공
 }
