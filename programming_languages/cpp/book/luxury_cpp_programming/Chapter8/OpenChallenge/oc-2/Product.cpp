@@ -1,0 +1,22 @@
+// Product.cpp
+#include "Product.h"
+
+// 정적 변수 초기화
+int Product::id_counter = 0;
+
+// 생성자 정의
+Product::Product(const string& desc, const string& prod, int price)
+    : description(desc), producer(prod), price(price) {
+    id = id_counter++; // 상품 식별자 자동 할당
+}
+
+// 상품 정보를 출력하는 함수 정의
+void Product::show() const {
+    cout << "--- 상품ID: " << id << endl;
+    cout << "상품설명: " << description << endl;
+    cout << "생산자: " << producer << endl;
+    cout << "가격: " << price << endl;
+}
+
+// 가상 소멸자 정의
+Product::~Product() {}
