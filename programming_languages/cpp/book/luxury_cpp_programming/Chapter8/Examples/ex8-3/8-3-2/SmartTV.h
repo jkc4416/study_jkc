@@ -22,7 +22,7 @@ using namespace std;
 [private 접근제어자로 상속 시]
 기반 클래스의 public 멤버와 protected 멤버는 파생 클래스에서 모두 private 멤버로 상속됩니다.
 기반 클래스의 public 멤버: 파생 클래스에서 private 멤버로 접근 가능합니다.
-기반 클래스의 protected 멤버: 파생 클래스에서 private 멤버로 접근 가능합니다.
+기 클래스의 protected 멤버: 파생 클래스에서 private 멤버로 접근 가능합니다.
 기반 클래스의 private 멤버: 파생 클래스에서 접근할 수 없습니다.
 */
 class SmartTV : public WideTV {
