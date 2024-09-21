@@ -1,2 +1,12 @@
 # Ignore all .ckpt files
 *.ckpt
+
+*.csv
+*.txt
+
+*.jpg
+*.png
+
+*.pkl
+*.pth
+*.pt
