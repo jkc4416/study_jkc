@@ -4,7 +4,7 @@ import psycopg2
 from sklearn.datasets import load_iris
 
 
-def get_data():
+def get_data() -> pd.DataFrame:
     X, y = load_iris(return_X_y=True, as_frame=True)
     df = pd.concat([X, y], axis="columns")
     rename_rule = {
