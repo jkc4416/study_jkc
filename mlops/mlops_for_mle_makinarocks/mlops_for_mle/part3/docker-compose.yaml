@@ -1,52 +1,52 @@
 version: "3"
 
 services:
-  mlflow-backend-store:
-    image: postgres:14.0
+  mlflow-backend-store:  # Backend Store 란 수치 데이터와 MLflow 서버의 정보들을 체계적으로 관리하기 위한 DB를 의미함(Backend Store 에는 모델의 학습 결과인 accuracy, f1-score, 모델이 학습되면서 생기는 loss, 모델 자체의 정보인 hyperparmameters 등의 수치 데이터와 run_id, run_name, experiment_name 등의 MLflow 의 메타 데이터가 저장)
+    image: postgres:14.0  # MLflow DB 서버에서 사용할 이미지
     container_name: mlflow-backend-store
     environment:
-      POSTGRES_USER: mlflowuser
-      POSTGRES_PASSWORD: mlflowpassword
-      POSTGRES_DB: mlflowdatabase
-    healthcheck:
+      POSTGRES_USER: mlflowuser  # DB에 접근하기 위한 사용자 이름
+      POSTGRES_PASSWORD: mlflowpassword  # DB에 접근하기 위한 비밀번호
+      POSTGRES_DB: mlflowdatabase  # DB 이름
+    healthcheck:  # DB 서버가 잘 띄워졌는지 상태 확인
       test: ["CMD", "pg_isready", "-q", "-U", "mlflowuser", "-d", "mlflowdatabase"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  mlflow-artifact-store:
-    image: minio/minio:RELEASE.2024-01-18T22-51-28Z
+  mlflow-artifact-store:  # Artifact Store 란 MLflow 에서 학습된 모델을 저장하는 Model Registry 로써 이용하기 위한 스토리지 (storage) 서버 (Artifact Store 를 이용하면 기본적인 파일 시스템 보다 체계적으로 관리 할 수 있으며 외부에 있는 스토리지 서버도 사용 할 수 있다는 장점이 있음)
+    image: minio/minio:RELEASE.2024-01-18T22-51-28Z  # Artifact store로 MinIO 서버를 사용하는 이유: MinIO 는 S3 를 대체할 수 있는 오픈 소스 고성능 개체 스토리지이며, AWS S3 의 API 와도 호환되어 SDK 도 동일하게 사용 할 수 있음 (MLflow 에서는 AWS S3 를 모델을 저장하기 위한 스토리지로 사용하도록 권장하고 있기 때문에 MinIO 를 사용)
     container_name: mlflow-artifact-store
-    ports:
-      - 9000:9000
-      - 9001:9001
+    ports:  # 호스트와 컨테이너의 포트 설정
+      - 9000:9000  # MinIO의 API 포트를 9000으로 포트 포워딩
+      - 9001:9001  # MinIO의 Console 포트를 9001으로 포트 포워딩
     environment:
-      MINIO_ROOT_USER: minio
-      MINIO_ROOT_PASSWORD: miniostorage
-    command: server /data/minio --console-address :9001
-    healthcheck:
+      MINIO_ROOT_USER: minio  # MinIO 에 접근하기 위한 사용자 이름
+      MINIO_ROOT_PASSWORD: miniostorage  # MinIO 에 접근하기 위한 비밀번호
+    command: server /data/minio --console-address :9001  # MinIO 서버를 실행시키는 명령어를 추가 (--console-address 를 통해 컨테이너의 9001 포트로 MinIO 에 접근할 수 있도록 주소를 열어wna)
+    healthcheck:  # MinIO 서버가 잘 띄워졌는지 상태를 확인하기 위해 상태를 체크하는 구문을 추가
       test: ["CMD", "mc", "ready", "local"]
       interval: 5s
       timeout: 5s
       retries: 5
 
-  mlflow-server:
-    build:
+  mlflow-server:  # 앞서 만든 Backend Store 와 Artifact Store 에 접근 가능한 MLflow 서버를 생성
+    build:  # MLflow 서버에 필요한 패키지가 설치된 이미지를 build 할 Dockerfile 필요
       context: .
       dockerfile: Dockerfile
     container_name: mlflow-server
-    depends_on:
+    depends_on:  # MLflow 서버가 띄워지기 전에, PostgreSQL DB 와 MinIO 서버를 먼저 띄우도록 함
       mlflow-backend-store:
         condition: service_healthy
       mlflow-artifact-store:
         condition: service_healthy
-    ports:
+    ports:  # 5001:5000 포트를 설정
       - 5001:5000
     environment:
-      AWS_ACCESS_KEY_ID: minio
-      AWS_SECRET_ACCESS_KEY: miniostorage
-      MLFLOW_S3_ENDPOINT_URL: http://mlflow-artifact-store:9000
-    command:
+      AWS_ACCESS_KEY_ID: minio  # AWS S3 의 credential 정보 (여기서는 MinIO 의 MINIO_ROOT_USER 와 동일함)
+      AWS_SECRET_ACCESS_KEY: miniostorage  # AWS S3 의 credential 정보 (여기서는 MinIO 의 MINIO_ROOT_PASSWORD 와 동일함)
+      MLFLOW_S3_ENDPOINT_URL: http://mlflow-artifact-store:9000  # AWS S3 의 주소를 설정 (여기서는 MinIO 의 주소와 같음)
+    command:  # MinIO 초기 버켓을 생성 하고, MLflow 서버를 실행
       - /bin/sh
       - -c
       - |
